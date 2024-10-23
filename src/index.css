@@ -1,0 +1,46 @@
+.listadereproduccion{
+  min-height: 200px;
+  max-height: 280px;
+  overflow: auto;
+}
+.contenedor{
+  min-height: 100vh;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+}
+.cardCanciones:hover{
+  cursor: pointer;
+  background-color: #141618;
+}
+
+.menuHorizontal {
+  display: flex;
+  justify-content: flex-start; /* Alinear a la izquierda */
+  gap: 5px;
+  overflow-x: auto; /* Permite el desplazamiento horizontal */
+  white-space: nowrap; /* Evita que los elementos se envuelvan en varias líneas */
+  scrollbar-width: thin; /* Para navegadores Firefox */
+  max-width: 95vw;
+  padding: 10px 0; /* Espaciado vertical para mejor apariencia */
+  border-bottom: 2px solid #ccc; /* Línea inferior para separar del contenido */
+}
+
+/* Estilo para navegadores WebKit (Chrome, Safari) */
+.menuHorizontal::-webkit-scrollbar {
+  height: 8px; /* Altura de la barra de desplazamiento */
+}
+
+.menuHorizontal::-webkit-scrollbar-thumb {
+  background-color: #888; /* Color del "pulgar" de la barra de desplazamiento */
+  border-radius: 10px; /* Bordes redondeados */
+}
+
+.menuHorizontal::-webkit-scrollbar-thumb:hover {
+  background-color: #555; /* Color del "pulgar" al pasar el mouse */
+}
+
+.menuHorizontal::-webkit-scrollbar-track {
+  background: transparent; /* Fondo de la pista de la barra de desplazamiento */
+}
+
+  
