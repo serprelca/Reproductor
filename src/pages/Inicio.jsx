@@ -1,9 +1,15 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import FiltroAutores from "../components/FiltroAutores"
 import FiltroGeneros from "../components/FiltroGeneros";
 import Buscador from "../components/Buscador";
 import Reproductor from "../components/Reproductor";
 import ListadeCanciones from "../components/ListadeCanciones";
+import VerificarCancion from "../components/VerificarCancios";
+import ModalRegistroCanciones from "../components/ModalRegistroCanciones";
+import ReproductorKa from "../components/ReproductorKa";
+
+const API = 'http://localhost/musicback/api/cancion/getCancion.php';
+
 const Inicio = () => {
     const [autor, setAutor] = useState("");
     const [genero, setGenero] = useState("");
@@ -14,6 +20,11 @@ const Inicio = () => {
     const [tipoFiltro, setTipoFiltro] = useState(""); // Estado para el tipo de filtro
     const [searchTerm, setSearchTerm] = useState(""); // Estado para el término de búsqueda
     const [titulo, setTitulo] = useState("");
+    const [modalVisibleForm2, setModalVisibleForm2] = useState(false);
+    const [modalVisibleForm, setModalVisibleForm] = useState(false);
+    const [datos, setDatos] = useState([]);
+    const [refreshKey, setRefreshKey] = useState(0); // Estado para forzar la re-renderización
+    const [modo, setModo]=useState('Audio');
 
     const handleAutorSelect = (nombre) => {
         setSearchTerm("");
@@ -21,6 +32,14 @@ const Inicio = () => {
         setFiltro(nombre);
         setTipoFiltro("autor");
         setTitulo(` Canciones de la lista de ${nombre}`);
+        
+
+        const handleSongAdded = () => {
+            loadSongs(); // Llama a loadSongs para refrescar la lista de canciones
+            setRefreshKey(prev => prev + 1); // Incrementa el refreshKey para forzar re-renderización
+            setModalVisibleForm2(false); // Cerrar el modal
+        };
+
     };
     const handleGeneroSelect = (nombre) => {
         setSearchTerm("");
@@ -44,6 +63,26 @@ const Inicio = () => {
     const agregarTodas = (canciones) => {
         setCanciones(prev => [...prev, ...canciones]); // Agregar todas las canciones a la lista
     };
+//
+const handleSongAdded = () => {
+    loadSongs(); // Llama a loadSongs para refrescar la lista de canciones
+    setRefreshKey(prev => prev + 1); // Incrementa el refreshKey para forzar re-renderización
+    setModalVisibleForm2(false); // Cerrar el modal
+};
+const loadSongs = async () => {
+    try {
+        const response = await fetch(API);
+        const data = await response.json();
+        setDatos(data); // Actualiza el estado de las canciones
+    } catch (error) {
+        console.error("Error al cargar las canciones:", error);
+    }
+};
+
+useEffect(() => {
+    loadSongs(); // Cargar las canciones al montar el componente
+}, []);
+
   return (
     <div className="container">
    
@@ -53,11 +92,32 @@ const Inicio = () => {
         <div className="pt-3 ">
             <FiltroGeneros setGenero={handleGeneroSelect} />
         </div>
+        <div className="pt-2 text-center">
+        <button className="btn btn-info btn-sm m-1" onClick={() => setModalVisibleForm(true)}>Verificar</button>
+        <VerificarCancion 
+                    isVisible={modalVisibleForm}
+                    onClose={() => setModalVisibleForm(false)}
+        />
+
+                <button className="btn btn-info btn-sm m-1" onClick={() => setModalVisibleForm2(true)}>Agregar canción</button>
+                <ModalRegistroCanciones
+                    isVisible={modalVisibleForm2}
+                    onClose={() => setModalVisibleForm2(false)}
+                    onSongAdded={handleSongAdded}
+                />
+                 <button className="btn btn-info btn-sm m-1" onClick={() => setModo(modo === 'Audio' ? 'Karaoke' : 'Audio')}>
+                    {modo}
+                </button>
+
+        </div>
         <div className="pt-3 w-75 mx-auto">
         <Buscador  setSearchTerm={setSearchTerm}  searchTerm={searchTerm}/> 
         </div>
         <div className="text-center pt-3">{titulo}</div>
         <div className="py-3">
+
+
+            {modo === 'Audio' ? ( 
                 <Reproductor 
                     canciones={canciones} 
                     setCanciones={setCanciones} // Asegúrate de que esto se pase
@@ -65,6 +125,15 @@ const Inicio = () => {
                     isPlaying={isPlaying} 
                     setIsPlaying={setIsPlaying} 
                 />
+            ) : ( 
+                <ReproductorKa
+                    canciones={canciones}
+                    setCanciones={setCanciones}
+                    setCancionActual={setCancionActual}
+                    isPlaying={isPlaying}
+                    setIsPlaying={setIsPlaying}
+                />          
+            )}
             </div>
             <div>
                 <ListadeCanciones 
